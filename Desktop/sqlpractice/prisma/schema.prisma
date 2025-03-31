@@ -1,0 +1,47 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Worker {
+  WORKER_ID    Int       @id @default(autoincrement())
+  FIRST_NAME   String?   @db.Char(25)
+  LAST_NAME    String?   @db.Char(25)
+  SALARY       Int?
+  JOINING_DATE DateTime? @db.DateTime(0)
+  DEPARTMENT   String?   @db.Char(25)
+
+  // Relationships
+  bonuses Bonus[]
+  titles  Title[]
+}
+
+model Bonus {
+  ID            Int       @id @default(autoincrement()) // Primary Key
+  WORKER_REF_ID Int       // Removed @unique to allow multiple bonuses per worker
+  BONUS_AMOUNT  Int?
+  BONUS_DATE    DateTime? @db.DateTime(0)
+
+  // Foreign Key Relation
+  worker Worker @relation(fields: [WORKER_REF_ID], references: [WORKER_ID], onDelete: Cascade)
+}
+
+model Title {
+  ID            Int       @id @default(autoincrement()) // Primary Key
+  WORKER_REF_ID Int       // Added FK constraint
+  WORKER_TITLE  String?   @db.Char(25)
+  AFFECTED_FROM DateTime? @db.DateTime(0)
+
+  // Foreign Key Relation
+  worker Worker @relation(fields: [WORKER_REF_ID], references: [WORKER_ID], onDelete: Cascade)
+}
+
+model Users {
+  id    Int     @id @default(autoincrement())
+  name  String? @db.VarChar(100)
+  email String  @unique @db.VarChar(100) // Removed "map" as it's unnecessary
+}
